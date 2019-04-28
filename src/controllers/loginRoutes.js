@@ -42,7 +42,7 @@ router.get('/login', jwtAuth, async (req, res) => {
     }
 });
 
-router.get('/login/:id', jwtAuth, async (req, res) => {
+router.get('/login/:id', /*jwtAuth,*/ async (req, res) => {
 
     try {
 
@@ -54,8 +54,8 @@ router.get('/login/:id', jwtAuth, async (req, res) => {
         
     } catch (error) {
 
-        if(error){
-            return res.status(400).json( { message: "id not found"} );
+        if(Object.entries(error).length === 0){
+            return res.status(400).json( { message: "ID not found"} );
         }
         
         return res.status(500).json(error);
