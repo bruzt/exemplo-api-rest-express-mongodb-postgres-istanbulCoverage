@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.use(express.static(path.join(__dirname, '../../coverage')));
 
-router.get('/coverage', authJwt, (req, res) => {
+router.get('/coverage', /*authJwt,*/ (req, res) => {
     try {
 
         return res.sendFile(path.join(__dirname, '../../coverage', 'index.html'));

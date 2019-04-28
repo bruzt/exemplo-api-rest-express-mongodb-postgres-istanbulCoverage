@@ -1,0 +1,47 @@
+{
+  "development": {
+    "username": "cliente1",
+    "password": "123",
+    "database": "users",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "port": "5432",
+
+    "mongoUsername": "cliente1",
+    "mongoPassword": "123",
+    "mongoDatabase": "peoples",
+    "mongoHost": "127.0.0.1",
+    "mongoDialect": "mongodb",
+    "mongoPort": "27017"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port": "3306",
+
+    "mongoUsername": "root",
+    "mongoPassword": null,
+    "mongoDatabase": "database_test",
+    "mongoHost": "127.0.0.1",
+    "mongoDialect": "mongodb",
+    "mongoPort": "27017"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port": "3306",
+
+    "mongoUsername": "root",
+    "mongoPassword": null,
+    "mongoDatabase": "database_production",
+    "mongoHost": "127.0.0.1",
+    "mongoDialect": "mongodb",
+    "mongoPort": "27017"
+  }
+}

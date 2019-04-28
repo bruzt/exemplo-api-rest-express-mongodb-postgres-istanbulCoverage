@@ -17,7 +17,7 @@ router.get('/login', jwtAuth, async (req, res) => {
             
             read = await userModel.findByPk(req.query.id);
 
-            read = [ read ];
+            read = [read];
 
         } else if (req.query.username) { // find by username, ?username=
 
@@ -32,49 +32,107 @@ router.get('/login', jwtAuth, async (req, res) => {
         
         read.map(element => { // não deixa a senha ser exibida
             return element.password = undefined;
-        })
+        });
 
-        return res.send(read);
+        return res.json(read);
 
     } catch (error) {
         //console.error(error);
-        res.status(500).send({ error });
+        res.status(500).json(error);
     }
 });
 
-router.post('/login', jwtAuth, async (req, res) => {
+router.get('/login/:id', jwtAuth, async (req, res) => {
+
     try {
+
+        let read = await userModel.findByPk(req.params.id);
+        
+        read.password = undefined;
+
+        return res.json(read);
+        
+    } catch (error) {
+
+        if(error){
+            return res.status(400).json( { message: "id not found"} );
+        }
+        
+        return res.status(500).json(error);
+    }
+
+});
+
+router.post('/login', jwtAuth, async (req, res) => {
+    
+    req.assert('username', 'username must have 5 characters mininum, 12 characters maximum').isLength({ min: 5, max: 12 });
+    req.assert('email', 'invalid email').isEmail();
+    req.assert('password', 'password must have 6 characters mininum, 16 characters maximum').isLength({ min: 6, max: 16 });
+
+    let errors = req.validationErrors();
+
+    if(errors){
+        return res.status(400).json(errors);
+    }
+
+    try {
+
         const user = req.body;
         
         user.password = await bcrypt.hash(user.password, 10);
         
         let create = await userModel.create(user);
+                
+        create.dataValues.password = undefined;
 
-        create = [ create ];
-        create.map(element => { // não deixa a senha ser exibida
-            return element.password = undefined;
-        })
-        
-        return res.send(create);
+        return res.json(create.dataValues);
 
     } catch (error) {
-        //console.error(error);
-        res.status(500).send({ error });
+        
+        if(error.name == "SequelizeUniqueConstraintError"){
+            let msg = [];
+            error.errors.forEach( (err) => {
+                msg.push(err.message + ', ' + err.type);
+            });
+
+            return res.status(400).json({ errors: msg }); // message: error.errors[0].message
+        }
+       
+        return res.status(500).json(error);
     }
 });
 
-router.patch('/login/:id', jwtAuth, async (req, res) => {
+router.put('/login/:id', jwtAuth, async (req, res) => {
+
+    if(req.body.username){
+        req.assert('username', 'username must have 5 characters mininum, 12 characters maximum').isLength({ min: 5, max: 12 });
+    }
+
+    if(req.body.email){
+        req.assert('email', 'invalid email').isEmail();
+    }
+    
+    if(req.body.password){
+        req.assert('password', 'password must have 6 characters mininum, 16 characters maximum').isLength({ min: 6, max: 16 });
+    }
+
+    let errors = req.validationErrors();
+
+    if(errors){
+        return res.status(400).json(errors);
+    }
+
     try {
         const id = req.params.id;
         const user = req.body;
 
         const update = await userModel.update(user, { where: { id }})
 
-        return res.send(update);
+        return res.json(update);
 
     } catch (error) {
         //console.error(error);
-        res.status(500).send({ error });
+        res.status(500).json(error);
     }
 });
 
@@ -84,11 +142,11 @@ router.delete('/login/:id', jwtAuth, async (req, res) => {
 
         await userModel.destroy({ where: { id }});
 
-        return res.sendStatus(200);
+        return res.json(true);
 
     } catch (error) {   
         //console.error(error);
-        res.status(500).send({ error });
+        res.status(500).json(error);
     }
 });
 

@@ -12,7 +12,7 @@ describe('Auth Routes Test Suit', () => {
 
     it('Deve obter um token', async () => {
         const result = await axios.post('http://localhost:3000/auth', {
-            username: "user",
+            username: "user1",
             password: "passwd"
         });
         

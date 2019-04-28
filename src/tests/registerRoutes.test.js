@@ -3,13 +3,13 @@ const axios = require('axios');
 const api = require('../app');
 
 let auth, url, headers, id;
-describe('Register Routes Test Suit', async () => {
+describe('Register Routes Test Suit (MongoDB)', async () => {
     before(async () => {
 
         await api;
 
         auth = await axios.post('http://localhost:3000/auth', {
-            username: "user",
+            username: "user1",
             password: "passwd"
         });
 
@@ -27,8 +27,8 @@ describe('Register Routes Test Suit', async () => {
             headers,
             data: {
                 name: "test Name",
-                age: "test Age",
-                gender: "test Gender"
+                age: "18",
+                gender: "Female"
             }
         });
 
@@ -36,11 +36,11 @@ describe('Register Routes Test Suit', async () => {
         
         assert.deepStrictEqual(result.status, 200);
         assert.deepStrictEqual(result.data.name, 'test Name');
-        assert.deepStrictEqual(result.data.age, 'test Age');
-        assert.deepStrictEqual(result.data.gender, 'test Gender');
+        assert.deepStrictEqual(result.data.age, '18');
+        assert.deepStrictEqual(result.data.gender, 'Female');
     });
 
-    it('Deve retornar tudo do /register limitado a 5', async () => {
+    it('Deve retornar tudo do registro limitado a 5', async () => {
         const result = await axios({
             method: 'GET',
             url: `${url}?limit=5`,
@@ -52,7 +52,7 @@ describe('Register Routes Test Suit', async () => {
         assert.ok(result.data.length <= 5);
     });
 
-    it('Deve retornar registro pelo ID', async () => {
+    it('Deve retornar registro pelo ID em query', async () => {
         const result = await axios({
             method: 'GET',
             url: `${url}?id=${id}`,
@@ -63,7 +63,18 @@ describe('Register Routes Test Suit', async () => {
         assert.deepStrictEqual(result.data._id, id);
     });
 
-    it('Deve retornar registros do /register filtrado pelo nome', async () => {
+    it('Deve retornar registro pelo ID em params', async () => {
+        const result = await axios({
+            method: 'GET',
+            url: `${url}/${id}`,
+            headers
+        });
+
+        assert.deepStrictEqual(result.status, 200);
+        assert.deepStrictEqual(result.data._id, id);
+    });
+
+    it('Deve retornar registro filtrado pelo nome', async () => {
         const result = await axios({
             method: 'GET',
             url: `${url}?name=test Name`,
@@ -76,16 +87,18 @@ describe('Register Routes Test Suit', async () => {
 
     it('Deve atualizar um registro', async () => {
         const result = await axios({
-            method: 'PATCH',
+            method: 'PUT',
             url: `${url}/${id}`,
             headers,
             data: {
-                age: "30"
+                age: "30",
+                gender: "female"
             }
         });
 
         assert.deepStrictEqual(result.status, 200);
         assert.deepStrictEqual(result.data.age, "30");
+        assert.deepStrictEqual(result.data.gender, "female");
     })
 
     it('Deve apagar um registro', async () => {

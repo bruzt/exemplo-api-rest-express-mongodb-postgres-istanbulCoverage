@@ -3,13 +3,13 @@ const axios = require('axios');
 const api = require('../app');
 
 let auth, url, headers, id;
-describe('Login Routes Test Suit', () => {
+describe('Login Routes Test Suit (Postgres)', () => {
     before(async () => {
 
         await api;
 
         auth = await axios.post('http://localhost:3000/auth', {
-            username: "user",
+            username: "user1",
             password: "passwd"
         });
 
@@ -21,23 +21,46 @@ describe('Login Routes Test Suit', () => {
 
     });
     
-    it('Deve cadastar um usuario no /login', async () => {
+    it('Deve cadastar um usuario', async () => {
         const result = await axios({ 
             method: 'POST',
             url,
             headers, 
             data: { 
-                username: 'test',
-                password: 'test'                     
+                username: "test1",
+                email: "test@test.com",
+                password: "test11"                     
             } 
         });
-
-        id = result.data[0].id;
+        
+        id = result.data.id;
         
         assert.deepStrictEqual(result.status, 200);
     });
 
-    it('Deve listar tudo do /login', async () => {
+    it('Deve tentar cadastar o mesmo usuario e não conseguir', async () => {
+
+        try {
+
+            await axios({ 
+                method: 'POST',
+                url,
+                headers, 
+                data: { 
+                    username: "test1",
+                    email: "test@test.com",
+                    password: "test11"                     
+                } 
+            });
+            
+        } catch (error) {
+            
+            assert.deepStrictEqual(error.response.status, 400);
+            
+        }
+    });
+
+    it('Deve listar tudo', async () => {
         const result = await axios({
             method: 'GET',
             url,
@@ -47,7 +70,7 @@ describe('Login Routes Test Suit', () => {
         assert.deepStrictEqual(result.status, 200);
     });
 
-    it('Deve listar pelo ID', async () => {
+    it('Deve listar pelo ID em query', async () => {
         const result = await axios({
             method: 'GET',
             url: `${url}?id=${id}`,
@@ -58,20 +81,31 @@ describe('Login Routes Test Suit', () => {
         assert.deepStrictEqual(result.data[0].id, id);
     })
 
-    it('Deve listar pelo username', async () => {
+    it('Deve listar pelo ID em params', async () => {
         const result = await axios({
             method: 'GET',
-            url: `${url}?username=user`,
+            url: `${url}/${id}`,
             headers
         });
 
         assert.deepStrictEqual(result.status, 200);
-        assert.deepStrictEqual(result.data[0].username, 'user');
+        assert.deepStrictEqual(result.data.id, id);
     })
 
-    it('Deve atualizar um usuario do /login', async () => {
+    it('Deve listar pelo username', async () => {
         const result = await axios({
-            method: 'PATCH',
+            method: 'GET',
+            url: `${url}?username=user1`,
+            headers
+        });
+
+        assert.deepStrictEqual(result.status, 200);
+        assert.deepStrictEqual(result.data[0].username, 'user1');
+    })
+
+    it('Deve atualizar um usuario', async () => {
+        const result = await axios({
+            method: 'PUT',
             url: `${url}/${id}`,
             headers,
             data: {
@@ -84,7 +118,7 @@ describe('Login Routes Test Suit', () => {
         assert.deepStrictEqual(result.data[0], 1);
     });
 
-    it('Deve deletar um usuario o /login', async () => {
+    it('Deve deletar um usuario', async () => {
         const result = await axios({
             method: 'DELETE',
             url: `${url}/${id}`,
@@ -92,7 +126,7 @@ describe('Login Routes Test Suit', () => {
         });
         
         assert.deepStrictEqual(result.status, 200);
-        assert.deepStrictEqual(result.data, 'OK');
+        assert.deepStrictEqual(result.data, true);
     })
 
 

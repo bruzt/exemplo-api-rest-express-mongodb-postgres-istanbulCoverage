@@ -26,40 +26,81 @@ router.get('/register', jwtAuth, async (req, res) => {
 
         }
 
-        return res.send(read);        
+        return res.json(read);        
 
     } catch (error) {
         //console.error(error);
-        res.status(500).send({ error });
+        return res.status(500).json(error);
+    }
+});
+
+router.get('/register/:id', jwtAuth, async (req, res) => {
+    try {
+
+        let read = await peopleModel.findById(req.params.id);
+
+        return res.json(read);        
+
+    } catch (error) {
+        //console.error(error);
+        return res.status(500).json(error);
     }
 });
 
 router.post('/register', jwtAuth, async (req, res) => {
+
+    req.assert('name', 'invalid name').isLength({ min: 2, max: 16});
+    req.assert('age', 'invalid age').isInt();
+    req.assert('gender', 'invalid gender').isIn(["Male", "male", 'Female', 'female', "Neither", 'neither']);
+
+    let errors = req.validationErrors();
+
+    if(errors){
+        return res.status(400).json(errors);
+    }
+
     try {
  
        const create = await peopleModel.create(req.body);
 
-        return res.send(create);
+        return res.json(create);
 
     } catch (error) {
         //console.error(error);
-        return res.status(500).send({ error });
+        return res.status(500).json(error);
     }
 });
 
-router.patch('/register/:id', jwtAuth, async (req, res) => {
+router.put('/register/:id', jwtAuth, async (req, res) => {
+
+    if(req.body.name){
+        req.assert('name', 'invalid name').isLength({ min: 2, max: 16});
+    }
+
+    if(req.body.age){
+        req.assert('age', 'invalid age').isInt();
+    }
+    
+    if(req.body.gender){
+        req.assert('gender', 'invalid gender').isIn(["Male", "male", 'Female', 'female', "Neither", 'neither']);
+    }
+    
+    let errors = req.validationErrors();
+
+    if(errors){
+        return res.status(400).json(errors);
+    }
+
     try {
-        
-        //console.log(req.query)
 
         const update = await peopleModel.findByIdAndUpdate(req.params.id, req.body, { new: true }) // new: true retorna o objeto com as alterações
         //const update = await peopleModel.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
         
-        return res.send(update);
+        return res.json(update);
 
     } catch (error) {
         //console.error(error);
-        res.status(500).send({ error });
+        return res.status(500).json(error);
     }
 });
 
@@ -68,11 +109,11 @@ router.delete('/register/:id', jwtAuth, async (req, res) => {
 
         const del = await peopleModel.findByIdAndDelete(req.params.id)
 
-        return res.send(del);
+        return res.json(del);
 
     } catch (error) {   
         //console.error(error);
-        res.status(500).send({ error });
+        res.status(500).json(error);
     }
 });
 
